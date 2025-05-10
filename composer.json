@@ -1,0 +1,70 @@
+{
+    "name": "comcast/splunk-http-event-collector-handler",
+    "description": "Monolog handler for Splunk HTTP Event Collector (HEC) to send events to a REST API instead of a log forwarder",
+    "type": "library",
+    "require": {
+        "php": ">=7.4",
+        "guzzlehttp/guzzle": "*",
+        "symfony/monolog-bundle": "^3.8",
+        "vlucas/phpdotenv": "^5.5",
+        "nesbot/carbon": "^2.64",
+        "illuminate/collections": "~8.0|~9.0|~10.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "nunomaduro/phpinsights": "^2.6",
+        "phpunit/php-code-coverage": "^9.2",
+        "illuminate/support": "^8.83"
+    },
+    "license": "Apache-2.0",
+    "authors": [{
+        "name": "Adam Marshall",
+        "email": "adam_marshall2@comcast.com",
+        "homepage": "https://github.com/orediggerco",
+        "role": "Developer"
+    }],
+    "support": {
+        "email": "adam_marshall2@comcast.com",
+        "issues": "https://example.com/issues",
+        "wiki": "https://example.com/wiki",
+        "docs": "https://example.com/README.md"
+    },
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {
+            "Comcast\\": "src/Comcast/",
+            "Comcast\\SplunkHttpEventCollectorHandler\\": "src/Comcast/SplunkHttpEventCollectorHandler/"
+        },
+        "classmap": [
+            "src/",
+            "tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-0": {
+            "Comcast\\SplunkHttpEventCollectorHandler\\Tests\\": "tests/"
+        }
+    },
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Comcast\\SplunkHttpEventCollectorHandler\\LaravelServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "insights": "./vendor/bin/phpinsights",
+        "start-splunk": "./tests/start-splunk.sh",
+        "stop-splunk": "./tests/stop-splunk.sh",
+        "tests": "phpunit --testdox"
+    },
+    "config": {
+        "platform": {
+            "php": "7.4"
+        },
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}

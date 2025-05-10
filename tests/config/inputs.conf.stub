@@ -1,0 +1,19 @@
+[http]
+#
+# Enable all HTTP tokens
+#
+disabled = 0
+
+[http://token_without_ack]
+disabled = 0
+connection_host = none
+index = main
+token = {{SPLUNK_HEC_TOKEN_WITHOUT_ACK}}
+indexes = main
+
+[http://token_with_ack]
+disabled = 0
+connection_host = none
+index = main
+token = {{SPLUNK_HEC_TOKEN_WITH_ACK}}
+indexes = main

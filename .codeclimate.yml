@@ -1,0 +1,23 @@
+---
+version: "2"
+plugins:
+  csslint:
+    enabled: true
+  coffeelint:
+    enabled: true
+  duplication:
+    enabled: true
+    config:
+      languages:
+        - php
+  eslint:
+    enabled: true
+    channel: "stable"
+  fixme:
+    enabled: true
+  rubocop:
+    enabled: true
+exclude_patterns:
+  - .github/
+  - src/Comcast/SplunkHttpEventCollectorHandler/config/
+  - src/Comcast/SplunkHttpEventCollectorHandler/Env.php

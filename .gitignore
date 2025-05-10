@@ -1,0 +1,13 @@
+/vendor
+composer.lock
+splunk-http-event-collector-handler.code-workspace
+/html-coverage
+coverage.txt
+coverage.html
+.phpunit.cache/*
+tests/config/input.conf
+tests/.password
+tests/.token*
+.DS_store
+tests/config/inputs.conf
+.env

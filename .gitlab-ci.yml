@@ -1,0 +1,122 @@
+stages:
+  - quality_checks
+  - build
+  - tests
+
+
+.sast:
+  stage: quality_checks
+  image: docker:latest
+  services:
+    - docker:dind
+  tags:
+    - dind
+  rules:
+    - when: never
+  variables:
+    SECURE_ANALYZERS_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
+    SAST_ANALYZER_IMAGE_TAG: 2
+  script:
+    - echo "This should never run"
+    - exit 1
+  artifacts:
+    reports:
+      sast: gl-sast-report.json
+    paths:
+      - gl-sast-report.json
+    when: on_success
+
+.sast-analyzer:
+  extends: .sast
+  allow_failure: true
+  script:
+    - /analyzer run
+  
+code_quality:
+  stage: quality_checks
+  image: docker:latest
+  tags:
+    - dind
+  services:
+    - docker:dind
+  variables:
+    REPORT_FORMAT: html
+  when: always
+  script:
+    - docker run --env SOURCE_CODE="$PWD" --volume "$PWD":/code --volume /var/run/docker.sock:/var/run/docker.sock registry.gitlab.com/gitlab-org/ci-cd/codequality:${VERSION:-latest} /code
+    - cat gl-code-quality-report.json
+  artifacts:
+    reports:
+      codequality: gl-code-quality-report.json
+    paths:
+      - gl-code-quality-report.json
+
+sast phpcs security audit:
+  extends: .sast-analyzer
+  image: "$SECURE_ANALYZERS_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
+  services: []
+  tags: []
+  rules:
+    - if: $CI_COMMIT_TAGS
+      when: never
+    - when: always
+  script:
+    - /analyzer run --target-dir $CI_PROJECT_DIR/src
+
+sast secrets detection:
+  extends: .sast-analyzer
+  image: "$SECURE_ANALYZERS_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
+  services: []
+  tags: []
+  rules:
+    - if: $CI_COMMIT_TAGS
+      when: never
+    - when: always      
+
+sast license scanning:
+  stage: quality_checks
+  image: "registry.gitlab.com/gitlab-org/security-products/analyzers/license-finder:latest"
+  rules:
+    - if: $CI_COMMIT_TAGS
+      when: never
+    - when: always
+  allow_failure: true
+  script:
+    - /analyzer run
+  artifacts:
+    reports: 
+      license_scanning: gl-license-scanning-report.json
+    paths: 
+      - gl-license-scanning-report.json
+
+qa:Composer Install:
+  stage: build
+  image: composer:2
+  dependencies: []
+  needs: []
+  rules:
+    - if: $CI_COMMIT_TAGS
+      when: never
+    - when: always
+  script:
+    - composer update --ignore-platform-reqs
+  artifacts:
+    paths:
+      - vendor
+
+phpunit tests:
+  stage: tests
+  image: php:7.4-cli
+  dependencies: ["qa:Composer Install"]
+  needs: ["qa:Composer Install"]
+  rules:
+    - if: $CI_COMMIT_TAGS
+      when: never
+    - when: always
+  before_script:
+    - apt-get update -y
+    - apt-get install -y uuid-runtime
+  script:
+    - ./tests/start-splunk.sh
+    - phpunit --testdox
+    - ./tests/stop-splunk.sh
